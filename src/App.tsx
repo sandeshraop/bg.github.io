@@ -14,7 +14,12 @@ const App: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+  // Handle logout
+  const handleLogout = () => {
+    localStorage.removeItem('isLoggedIn');
+    window.location.href = '/login';
+  };
 
   const renderDashboardContent = () => (
     <div className="container mx-auto px-4 py-8">
@@ -34,10 +39,7 @@ const App: React.FC = () => {
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-semibold text-gray-800">Image Upload</h3>
-              <button onClick={() => {
-                localStorage.removeItem('isLoggedIn');
-                window.location.href = '/login';
-              }} className="flex items-center text-red-600 hover:text-red-700 transition-colors">
+              <button onClick={handleLogout} className="flex items-center text-red-600 hover:text-red-700 transition-colors">
                 <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
@@ -52,10 +54,7 @@ const App: React.FC = () => {
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-semibold text-gray-800">Image Processing</h3>
-              <button onClick={() => {
-                localStorage.removeItem('isLoggedIn');
-                window.location.href = '/login';
-              }} className="flex items-center text-red-600 hover:text-red-700 transition-colors">
+              <button onClick={handleLogout} className="flex items-center text-red-600 hover:text-red-700 transition-colors">
                 <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
@@ -79,22 +78,26 @@ const App: React.FC = () => {
 
   return (
     <HashRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} replace />} />
-        <Route path="/login" element={
-          <>
-            <Login />
-            <Footer />
-          </>
-        } />
-        <Route path="/dashboard" element={
-          <>
-            <Header />
-            {renderDashboardContent()}
-            <Footer />
-          </>
-        } />
-      </Routes>
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/dashboard"
+            element={
+              localStorage.getItem('isLoggedIn') === 'true' ? (
+                <div className="container mx-auto px-4 py-8">
+                  {renderDashboardContent()}
+                </div>
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+          <Route path="/" element={<Navigate to="/login" />} />
+        </Routes>
+        <Footer />
+      </div>
     </HashRouter>
   );
 };
